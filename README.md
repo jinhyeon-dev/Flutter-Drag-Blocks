@@ -1,16 +1,11 @@
-# flutter_drag_block
+## Objectives 📝
 
-A new Flutter project.
+- **Learn Drag-and-Drop Functionality:** Practice implementing draggable widgets in Flutter.
+- **Understand UI Interactions:** Explore ways to provide better user experiences through user interactions.
+- **Personal Learning Project:** This repository is for personal learning and experimentation.
 
-## Getting Started
+## Contents 📂
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Simple example code for draggable blocks
+- Handling drag events and state management
+- Notes and code snippets from the learning process
