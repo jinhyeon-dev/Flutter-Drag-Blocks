@@ -29,7 +29,11 @@ class _DragScreenState extends State<DragScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Drag and Drop"),
+        backgroundColor: Colors.grey,
+        title: const Text(
+          "Drag and Drop",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: Column(
         children: [
@@ -48,6 +52,7 @@ class _DragScreenState extends State<DragScreen> {
                   return CodeLineWithBlank(
                     line: codeLines[index],
                     blankContent: filledBlanks[blankIndex],
+                    blankIndex: blankIndex,
                     onAccept: (data) {
                       setState(() {
                         filledBlanks[blankIndex] = data;
@@ -55,6 +60,12 @@ class _DragScreenState extends State<DragScreen> {
                         if (!filledBlanks.contains(null)) {
                           checkCompletion();
                         }
+                      });
+                    },
+                    onRemove: (data) {
+                      setState(() {
+                        filledBlanks[data['blankIndex']] = null;
+                        availableBlocks.add(data['block']);
                       });
                     },
                   );
@@ -73,18 +84,6 @@ class _DragScreenState extends State<DragScreen> {
                 children: availableBlocks.map((block) {
                   return Draggable<String>(
                     data: block,
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: Text(
-                        block,
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
                     feedback: Material(
                       color: Colors.transparent,
                       child: Container(
@@ -105,6 +104,18 @@ class _DragScreenState extends State<DragScreen> {
                           horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                         color: Colors.grey,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: const Text(
+                        "Dragging...",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: Text(
@@ -179,7 +190,7 @@ class CodeLine extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Text(
         line,
-        style: const TextStyle(fontSize: 16),
+        style: const TextStyle(fontSize: 16, fontFamily: 'monospace'),
         softWrap: true,
       ),
     );
@@ -189,13 +200,17 @@ class CodeLine extends StatelessWidget {
 class CodeLineWithBlank extends StatelessWidget {
   final String line;
   final String? blankContent;
+  final int blankIndex;
   final Function(String) onAccept;
+  final Function(Map<String, dynamic>) onRemove;
 
   const CodeLineWithBlank({
     super.key,
     required this.line,
     this.blankContent,
+    required this.blankIndex,
     required this.onAccept,
+    required this.onRemove,
   });
 
   @override
@@ -209,38 +224,49 @@ class CodeLineWithBlank extends StatelessWidget {
         children: [
           Text(
             parts[0],
-            style: const TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16, fontFamily: 'monospace'),
             softWrap: true,
           ),
           const SizedBox(width: 4), // 약간의 간격 추가
-          DragTarget<String>(
-            builder: (context, candidateData, rejectedData) {
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: blankContent != null
-                      ? Theme.of(context).colorScheme.primary
-                      : Colors.blue, // 배경색을 명시적으로 설정
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                child: Text(
-                  blankContent ?? '___',
-                  style: TextStyle(
-                    color: blankContent != null
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : Colors.white, // 가독성을 위해 기본 텍스트 색상을 흰색으로 변경
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              );
+          GestureDetector(
+            onTap: () {
+              if (blankContent != null) {
+                onRemove({
+                  'blankIndex': blankIndex,
+                  'block': blankContent!,
+                });
+              }
             },
-            onAccept: onAccept,
+            child: DragTarget<String>(
+              builder: (context, candidateData, rejectedData) {
+                return Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: blankContent != null
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.blue, // 배경색을 명시적으로 설정
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  child: Text(
+                    blankContent ?? '___',
+                    style: TextStyle(
+                      color: blankContent != null
+                          ? Theme.of(context).colorScheme.onPrimary
+                          : Colors.white, // 가독성을 위해 기본 텍스트 색상을 흰색으로 변경
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                );
+              },
+              onAcceptWithDetails: (details) => onAccept,
+            ),
           ),
           const SizedBox(width: 4), // 약간의 간격 추가
           Text(
             parts.length > 1 ? parts[1] : '',
-            style: const TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16, fontFamily: 'monospace'),
             softWrap: true,
           ),
         ],
