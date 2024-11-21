@@ -260,7 +260,9 @@ class CodeLineWithBlank extends StatelessWidget {
                   ),
                 );
               },
-              onAcceptWithDetails: (details) => onAccept,
+              onAcceptWithDetails: (details) {
+                onAccept(details.data);
+              },
             ),
           ),
           const SizedBox(width: 4), // 약간의 간격 추가
